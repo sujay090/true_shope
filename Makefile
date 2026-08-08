@@ -1,7 +1,7 @@
 .PHONY: build run
 
 build:
-	@go build -o bin/api ./cmd/api
+	@go build -o bin/api/main ./cmd/api/
 
 run: build
-	@./bin/main
+	@./bin/api/main
