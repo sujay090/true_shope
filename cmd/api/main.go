@@ -1,24 +1,20 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 	"true_shop/internal/config"
+	"true_shop/internal/handlers"
 )
 
 
 
 func main(){
 	cfg := config.MustLoad()
-	fmt.Println("Server starting ")
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz",func(w http.ResponseWriter,r *http.Request){
-		w.Header().Set("Content-Type","application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status":"successfully running server"}`))
-	})
+
+	mux.HandleFunc("GET /healthz",handlers.Health) 
 
 	srv := http.Server{
 		Addr: ":" + cfg.Port,
@@ -26,8 +22,8 @@ func main(){
 		ReadTimeout: time.Second * 10,
 		WriteTimeout: time.Second * 30,
 		IdleTimeout: time.Second * 60,
-
 	}
+	
 	log.Printf("Server listening %s",srv.Addr)
 	if err := srv.ListenAndServe();err !=nil {
 		log.Fatalf("server failed : %v",err)
