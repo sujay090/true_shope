@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 	"true_shop/internal/config"
+	"true_shop/internal/db"
 	"true_shop/internal/handlers"
 )
 
@@ -12,11 +13,17 @@ import (
 
 func main(){
 	cfg := config.MustLoad()
+	_,err := db.Connect(cfg.DatabaseUrl)
+	if err != nil {
+		log.Fatalf("Database connection failed : %v",err)
+	}
+	log.Printf("Database listening")
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /healthz",handlers.Health) 
 
-	srv := http.Server{
+	srv := http.Server{ 
 		Addr: ":" + cfg.Port,
 		Handler: mux,
 		ReadTimeout: time.Second * 10,
