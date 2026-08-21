@@ -7,7 +7,7 @@ run: build
 	@./bin/api/main
 
 migrate-up:
-	@go run ./cmd/migrate up
+	@go run ./api/migrate up
 
 migrate-down:
-	@go run ./cmd/migrate down
+	@go run ./api/migrate down

@@ -9,33 +9,29 @@ import (
 	"true_shop/internal/handlers"
 )
 
-
-
-func main(){
+func main() {
 	cfg := config.MustLoad()
-	_,err := db.Connect(cfg.DatabaseUrl)
+	db, err := db.Connect(cfg.DatabaseUrl)
 	if err != nil {
-		log.Fatalf("Database connection failed : %v",err)
+		log.Fatalf("Database connection failed : %v", err)
 	}
 	log.Printf("Database listening")
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /healthz",handlers.Health) 
-
-	srv := http.Server{ 
-		Addr: ":" + cfg.Port,
-		Handler: mux,
-		ReadTimeout: time.Second * 10,
+	mux.HandleFunc("GET /healthz", handlers.Health)
+	mux.HandleFunc("GET /listings", handlers.Listings(db))
+	srv := http.Server{
+		Addr:         ":" + cfg.Port,
+		Handler:      mux,
+		ReadTimeout:  time.Second * 10,
 		WriteTimeout: time.Second * 30,
-		IdleTimeout: time.Second * 60,
+		IdleTimeout:  time.Second * 60,
 	}
-	
-	log.Printf("Server listening %s",srv.Addr)
-	if err := srv.ListenAndServe();err !=nil {
-		log.Fatalf("server failed : %v",err)
+
+	log.Printf("Server listening %s", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil {
+		log.Fatalf("server failed : %v", err)
 	}
 
 }
-
-	

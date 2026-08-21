@@ -5,25 +5,26 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func Connect(databaseUrl string) (*sql.DB,error ) {
+func Connect(databaseUrl string) (*sql.DB, error) {
 
-	db,err:=sql.Open("pgx",databaseUrl)
+	db, err := sql.Open("pgx", databaseUrl)
 	if err != nil {
-		return nil,fmt.Errorf("sql.Open : %w",err)
+		return nil, fmt.Errorf("sql.Open : %w", err)
 	}
 
 	db.SetMaxOpenConns(25)
 	db.SetMaxIdleConns(25)
-	db.SetConnMaxLifetime(5*time.Minute)
+	db.SetConnMaxLifetime(5 * time.Minute)
 	// fail fast
-	ctx,cancel:=context.WithTimeout(context.Background(),5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := db.PingContext(ctx);err != nil {
-		return nil,fmt.Errorf("ping:%w",err)
+	if err := db.PingContext(ctx); err != nil {
+		return nil, fmt.Errorf("ping:%w", err)
 	}
 
-	return db,nil
+	return db, nil
 }
