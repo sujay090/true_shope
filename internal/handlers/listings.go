@@ -49,3 +49,17 @@ func Listings(db *sql.DB) http.HandlerFunc {
 		_ = json.NewEncoder(w).Encode(listings)
 	}
 }
+
+func DeleteListing(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		_, err := db.Exec(`DELETE FROM listings WHERE id = $1`, id)
+		if err != nil {
+			log.Printf("delete:%w", err)
+			http.Error(w, "Internal error", http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+
+	}
+}
