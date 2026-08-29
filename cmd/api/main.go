@@ -2,7 +2,9 @@ package main
 
 import (
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 	"true_shop/internal/config"
 	"true_shop/internal/db"
@@ -11,12 +13,18 @@ import (
 
 func main() {
 	cfg := config.MustLoad()
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelInfo,
+	})
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
 	db, err := db.Connect(cfg.DatabaseUrl)
 	if err != nil {
 		log.Fatalf("Database connection failed : %v", err)
 	}
-	log.Printf("Database listening")
 
+	log.Printf("Database listening")
 	lh := handlers.NewListingHandler(db)
 
 	mux := http.NewServeMux()
