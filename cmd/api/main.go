@@ -25,7 +25,7 @@ func main() {
 	}
 
 	log.Printf("Database listening")
-	lh := handlers.NewListingHandler(db)
+	lh := handlers.NewListingHandler(db,logger)
 
 	mux := http.NewServeMux()
 
