@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+	"true_shop/internal/httpx"
 	"true_shop/internal/middleware"
 )
 
@@ -72,7 +73,8 @@ func (lh ListingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	_, err := lh.db.ExecContext(ctx, `DELETE FROM listings WHERE id = $1`, id)
 	if err != nil {
 		lh.logger.Error("delete failed", "listing_id:", id, "request_id", requestId, "err", err)
-		http.Error(w, "Internal error", http.StatusInternalServerError)
+		// http.Error(w, "Internal error", http.StatusInternalServerError)
+		httpx.Error(w, http.StatusInternalServerError, string(httpx.CodeInternalError), "something went wrong")
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
