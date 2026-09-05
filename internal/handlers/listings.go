@@ -14,7 +14,7 @@ type listing struct {
 	Id          string    `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Price       string    `json:"price"`
+	Price       int64     `json:"price"`
 	City        string    `json:"city"`
 	CreatedAt   time.Time `json:"created_at"`
 }
@@ -78,4 +78,29 @@ func (lh ListingHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (lh ListingHandler) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	requestId := middleware.RequestIDFromContext(ctx)
+	var req listing
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		lh.logger.Error("json decoding failed", "request_id", requestId, "err", err)
+		httpx.Error(w, http.StatusBadRequest, "invalid_body", string(httpx.CodeMalformedJSON))
+		return
+	}
+	var id string
+	row := lh.db.QueryRowContext(
+		ctx,
+		`INSERT INTO listings (title, description, price, city) VALUES ($1, $2, $3, $4) RETURNING id`,
+		req.Title, req.Description, req.Price, req.City)
+	if err := row.Scan(&id); err != nil {
+		lh.logger.Error("failed to insert", "request_id", requestId, "err", err)
+		httpx.Error(w, http.StatusInternalServerError, "something went wrong", string(httpx.CodeInternalError))
+		return
+	}
+	lh.logger.Info("listing created", "request_id", requestId, "listing_id", id)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(map[string]string{"id": id})
 }

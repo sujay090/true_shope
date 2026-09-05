@@ -10,6 +10,7 @@ type Code string
 const (
 	CodeInvalidID     Code = "invalid_id"
 	CodeInternalError Code = "Internal_error"
+	CodeMalformedJSON Code = "Malformed_json"
 )
 
 type errorPayload struct {
